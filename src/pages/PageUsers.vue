@@ -7,67 +7,54 @@
     <q-list separator bordered>
       <q-item
         v-for="user in users"
-        :key="user.id"
+        :key="user.authUserId"
         clickable
-        v-ripple
-        to="/chat"
+        v-ripple       
+        :to="{ path: '/chat/'+user.authUserId , params: { id: user.authUserId } }"
       >
         <q-item-section avatar>
           <q-avatar color="primary" text-color="white">
-            {{ user.name.charAt(0) }}
+            {{ String(user.firstName).charAt(0).toUpperCase() }}
+      
           </q-avatar>
         </q-item-section>
 
         <q-item-section>
-          <q-item-label>{{ user.name }}</q-item-label>
-          <q-item-label caption lines="1">{{ user.email }}</q-item-label>
+          <q-item-label>{{ user.firstName }}</q-item-label>
+          <q-item-label caption lines="1"> {{ user.lastName }}</q-item-label>
         </q-item-section>
 
         <q-item-section side>
           <!-- <q-icon name="chat_bubble" color="green" /> -->
-          <q-badge :color="user.online ? 'light-green-5' : 'grey-5'">
-            {{ user.online ? "Online" : "Offline" }}
+          <q-badge :color="user.lastActivity ? 'light-green-5' : 'grey-5'">
+            {{ user.lastActivity ? "Online" : "Offline" }}
           </q-badge>
         </q-item-section>
       </q-item>
     </q-list>
+<!-- {{ getUsers }} -->
   </div>
 </template>
 
 <script>
+import { mapState } from "pinia";
+import { useStore } from "../stores/store";
 import { defineComponent } from "vue";
+import { mapActions } from "pinia";
 
 export default defineComponent({
   name: "IndexPage",
+  
   data() {
-    return {
-      users: [
-        {
-          id: 1,
-          name: "Ruddy Jedrzej",
-          email: "rjedrzej0@discuz.net",
-          online: true,
-        },
-        {
-          id: 2,
-          name: "Mallorie Alessandrini",
-          email: "malessandrini1@marketwatch.com",
-          online: true,
-        },
-        {
-          id: 3,
-          name: "Elisabetta Wicklen",
-          email: "ewicklen2@microsoft.com",
-          online: false,
-        },
-        {
-          id: 4,
-          name: "Seka Fawdrey",
-          email: "sfawdrey3@wired.com",
-          online: true,
-        },
-      ],
-    };
+    return {};
+  },
+  computed: {
+    ...mapState(useStore, ["users", "users2"]),
+    ...mapActions(useStore, ["getUsers"]),
+  },
+  mounted() {
+    // Call getUsers from the store
+    this.getUsers;
   },
 });
 </script>

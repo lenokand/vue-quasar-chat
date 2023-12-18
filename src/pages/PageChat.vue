@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex column">
-    <q-banner class="bg-grey-5 q-pa-md"> User is offline </q-banner>
+    <q-banner class="bg-grey-5 q-pa-md"> User is offline {{ $route.params.id }} {{ messages2 }}</q-banner>
     <div class="q-pa-md column col justify-end">
       <q-chat-message
         v-for="message in messages"
@@ -44,42 +44,32 @@
 
 <script>
 import { defineComponent } from "vue";
-
+import { mapState } from "pinia";
+import { useStore } from "../stores/store";
+import { mapActions } from "pinia";
 export default defineComponent({
   name: "IndexPage",
   data() {
     return {
       newMessage: "",
-      messages: [
-        {
-          id: 1,
-          text: "Hey, hiw are you",
-          from: "Jim",
-        },
-        {
-          id: 2,
-          text: "Good, thnx",
-          from: "me",
-        },
-        {
-          id: 3,
-          text: "I'm glad",
-          from: "Jim",
-        },
-      ],
+    
     };
   },
+  computed: {
+    ...mapState(useStore, ["messages", "messages2"]),
+  },
   methods: {
-    sendMessage() {
-      if (this.newMessage.trim() !== "") {
-        this.messages.push({
-          text: this.newMessage,
-          from: "me",
-        });
-      }
+    ...mapActions(useStore, [ {sendMessageInStore: "sendMessage"}, "createChat", "getChatById"]),
 
+    sendMessage() {
+      this.sendMessageInStore(this.newMessage);
       this.newMessage = "";
     },
+  },
+  mounted() {
+    // Call getUsers from the store
+    this.createChat(this.$route.params.id);
+    this.getChatById(this.$route.params.id)
   },
 });
 </script>
