@@ -10,6 +10,8 @@ export const useStore = defineStore("storeId", {
       name: "",
       isAuthenticated: false,
       errorMsg:"",
+      chats:[],
+      userId: 0,
       users:[{}],
       users2: [
         {
@@ -117,6 +119,7 @@ export const useStore = defineStore("storeId", {
           const data = await response.json();
           const token = data.token;    
           this.token = token;
+          this.userId = user.sub
           this.name = user.username
           console.log('Login successful. Token:', token);
           this.errorMsg = 'Login successful.'
@@ -142,17 +145,36 @@ export const useStore = defineStore("storeId", {
       this.isAuthenticated = false;
     },
     async getUsers() {
-  
+      const token = localStorage.getItem("token")
       try {
         const response = await fetch('http://localhost:3000/users', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "bearer " + (this.token ? this.token : token),
+          },});       
+        if (response.ok) {   
+          this.users = await response.json();
+          console.log(this.users)
+
+          } else {
+            console.error('Login failed. Server returned:', response.status, response.statusText);
+          }
+      } catch (error) {
+        console.error('Error during login:', error);
+      }
+    },
+    async getChats() {
+  
+      try {
+        const response = await fetch('http://localhost:3000/chats', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': "bearer " + this.token,
           },});       
         if (response.ok) {   
-          this.users = await response.json();
-       
+          const chats = await response.json();       
 
           } else {
             console.error('Login failed. Server returned:', response.status, response.statusText);
@@ -186,21 +208,21 @@ export const useStore = defineStore("storeId", {
     async getChatById(recipientId ) {
  
       try {
-        const response = await fetch(`http://localhost:3000/chats/{$recipientId}`, {
+        const response = await fetch(`http://localhost:3000/chats/${recipientId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': "bearer " + this.token,
-          },
-          body: JSON.stringify({ recipient: recipientId }),
+            'Authorization': "Bearer " + this.token,
+          }
         });
 
         if (!response.ok) {
           throw new Error('Chat creation failed');
         } else {
-          this.messages2 = await response.json()
+          const tempMessages = await response.json()
+          this.messages2 = tempMessages.messages
           console.log("getChatById")
-          console.log(await response.json())
+          console.log(this.messages2)
         }
         console.log('Chat created successfully');
       } catch (error) {
@@ -208,6 +230,33 @@ export const useStore = defineStore("storeId", {
       }
 
     },
+    async sendMessageInChatById(recipientId, message ) {
+      console.log(message)
+      try {
+        const response = await fetch(`http://localhost:3000/chats/${recipientId}/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + this.token,
+          },
+          body: JSON.stringify({ description: "description", type: "string",
+          example: "Hello Mike, How are you?" }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Chat creation failed');
+        } else {
+          console.log(await response)
+          console.log("sendMessageInChatById")
+        }
+        console.log('Chat created successfully');
+      } catch (error) {
+        console.error('Error creating chat', error);
+      }
+
+    },
+
+
 
     sendMessage(newMessage) {
       if (newMessage.trim() !== "") {

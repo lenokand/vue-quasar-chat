@@ -33,7 +33,8 @@
         label="Password"
       />
       <q-btn unelevated rounded color="primary" type="submit" :label="tab" />
-      <q-btn class="q-mt-xl" unelevated rounded color="primary"  label="Go chat" to="/users" v-if="tab=='logout'"/>
+      <q-btn class="q-mt-xl" unelevated rounded color="primary"  label="Go chat" to="/chats" v-if="tab=='logout'"/>
+      <q-btn class="q-mt-xl" unelevated rounded color="primary"  label="Create a new chat" to="/users" v-if="tab=='logout'"/>
       <div class="q-pa-md text-deep-orange-8 text-weight-bold" >
       {{ errorMsg }}
       </div>

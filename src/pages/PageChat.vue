@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex column">
-    <q-banner class="bg-grey-5 q-pa-md"> User is offline {{ $route.params.id }} {{ messages2 }}</q-banner>
+    <q-banner class="bg-grey-5 q-pa-md"> User is offline {{ $route.params.id }} {{ messages2.messages }}</q-banner>
     <div class="q-pa-md column col justify-end">
       <q-chat-message
         v-for="message in messages"
@@ -33,7 +33,7 @@
             </template>
 
             <template v-slot:after>
-              <q-btn round color="white" dense flat icon="send" />
+              <q-btn round color="white" @click="sendMessageInChatById($route.params.id, this.newMessage)" dense flat icon="send" />
             </template>
           </q-input>
         </q-form>
@@ -59,7 +59,7 @@ export default defineComponent({
     ...mapState(useStore, ["messages", "messages2"]),
   },
   methods: {
-    ...mapActions(useStore, [ {sendMessageInStore: "sendMessage"}, "createChat", "getChatById"]),
+    ...mapActions(useStore, [ {sendMessageInStore: "sendMessage"}, "createChat", "getChatById", "sendMessageInChatById"]),
 
     sendMessage() {
       this.sendMessageInStore(this.newMessage);
