@@ -21,8 +21,8 @@
           @click="goBack"
         />
 
-        <q-toolbar-title>
-          {{ $route.name + " -- I sent " + messagesFromMeCount + " messages" }}
+        <q-toolbar-title v-if="isAuthenticated">
+          {{ $route.name + " - I sent " + messagesFromMeCount + " messages" }}
         </q-toolbar-title>
 
         <q-btn
@@ -57,7 +57,7 @@ export default defineComponent({
   name: "MainLayout",
 
   computed: {
-    ...mapState(useStore, ["messagesFromMeCount", "name"]),
+    ...mapState(useStore, ["messagesFromMeCount", "name", "isAuthenticated"]),
   },
 
   setup() {

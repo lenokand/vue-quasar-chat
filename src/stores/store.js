@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { jwtDecode } from "jwt-decode";
 
 export const useStore = defineStore("storeId", {
   // arrow function recommended for full type inference
@@ -76,7 +77,7 @@ export const useStore = defineStore("storeId", {
     },
 
     messagesFromMeCount: (state) =>
-      state.messages.filter((message) => message.from === "me").length,
+      state.messages2.filter((message) => message.from === state.userId).length,
   },
   actions: {
     async registerdUser(user) {
@@ -119,9 +120,20 @@ export const useStore = defineStore("storeId", {
           const data = await response.json();
           const token = data.token;    
           this.token = token;
-          this.userId = user.sub
+          
+          const decodedToken = jwtDecode(token);
+          if (decodedToken) {
+            const userId = decodedToken.sub; // Accessing the 'sub' claim from the decoded token
+            // You can use userId as needed, e.g., assigning it to this.userId
+            this.userId = userId;
+            console.log(this.userId)
+          } else {
+            // Handle the case where decoding fails or token doesn't contain the expected information
+            console.error('Failed to decode token or token does not contain the "sub" claim.');
+          }
+          // this.userId = user.sub
           this.name = user.username
-          console.log('Login successful. Token:', token);
+          console.log('Login successful. Token:', token, this.userId);
           this.errorMsg = 'Login successful.'
 
           localStorage.setItem("token", token);
@@ -145,13 +157,13 @@ export const useStore = defineStore("storeId", {
       this.isAuthenticated = false;
     },
     async getUsers() {
-      const token = localStorage.getItem("token")
+      
       try {
         const response = await fetch('http://localhost:3000/users', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': "bearer " + (this.token ? this.token : token),
+            'Authorization': "bearer " + (this.token ? this.token : localStorage.getItem("token")),
           },});       
         if (response.ok) {   
           this.users = await response.json();
@@ -171,10 +183,10 @@ export const useStore = defineStore("storeId", {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': "bearer " + this.token,
+            'Authorization': "bearer " + (this.token ? this.token : localStorage.getItem("token")),
           },});       
         if (response.ok) {   
-          const chats = await response.json();       
+          this.chats = await response.json();       
 
           } else {
             console.error('Login failed. Server returned:', response.status, response.statusText);
@@ -191,7 +203,7 @@ export const useStore = defineStore("storeId", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': "bearer " + this.token,
+            'Authorization': "bearer " + (this.token ? this.token : localStorage.getItem("token")),
           },
           body: JSON.stringify({ recipient: recipientId }),
         });
@@ -199,7 +211,11 @@ export const useStore = defineStore("storeId", {
         if (!response.ok) {
           throw new Error('Chat creation failed');
         }
+
+        const chatId = (await response.json()).chatId;
         console.log('Chat created successfully');
+
+        return chatId;
       } catch (error) {
         console.error('Error creating chat', error);
       }
@@ -212,46 +228,45 @@ export const useStore = defineStore("storeId", {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': "Bearer " + this.token,
+            'Authorization': "bearer " + (this.token ? this.token : localStorage.getItem("token")),
           }
         });
 
         if (!response.ok) {
-          throw new Error('Chat creation failed');
+          throw new Error('getChatById failed');
         } else {
           const tempMessages = await response.json()
           this.messages2 = tempMessages.messages
-          console.log("getChatById")
-          console.log(this.messages2)
         }
-        console.log('Chat created successfully');
+        console.log('Chat fetch successfully');
       } catch (error) {
-        console.error('Error creating chat', error);
+        console.error('Error fetching chat', error);
       }
 
     },
-    async sendMessageInChatById(recipientId, message ) {
+    async sendMessageInChatById(chatId, message ) {
       console.log(message)
       try {
-        const response = await fetch(`http://localhost:3000/chats/${recipientId}/messages`, {
+        const response = await fetch(`http://localhost:3000/chats/${chatId}/messages`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': "Bearer " + this.token,
+            'Authorization': "bearer " + (this.token ? this.token : localStorage.getItem("token")),
           },
-          body: JSON.stringify({ description: "description", type: "string",
-          example: "Hello Mike, How are you?" }),
+          body: JSON.stringify({ 
+          message: message
+         }),
         });
         
         if (!response.ok) {
-          throw new Error('Chat creation failed');
+          throw new Error('Chat send failed');
         } else {
-          console.log(await response)
+          // console.log(await response)
           console.log("sendMessageInChatById")
         }
-        console.log('Chat created successfully');
+        console.log('Chat send successfully');
       } catch (error) {
-        console.error('Error creating chat', error);
+        console.error('Error sending chat', error);
       }
 
     },

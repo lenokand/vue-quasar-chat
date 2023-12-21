@@ -1,6 +1,6 @@
 <template>
   <div class="q-mx-auto q-pt-lg" style="max-width: 600px">
-    <p>{{ tab }} </p>
+   
     <q-form class="flex column align-center" @submit.prevent="submitForm" >
       <q-input
         class="q-mb-md"
@@ -60,7 +60,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(useStore, ["isAuthenticated", "errorMsg"]),
+    ...mapState(useStore, ["isAuthenticated", "errorMsg", "name"]),
   },
   methods: {
     ...mapActions(useStore, [ "registerdUser", "loginUser", "logoutUser" ]),

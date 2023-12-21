@@ -1,4 +1,13 @@
 <template>
+<div class="q-pa-md">
+    <q-parallax :height="200" :speed="0.5">
+      <template v-slot:media>
+        <img src="https://api.time.com/wp-content/uploads/2022/11/GettyImages-1358149692.jpg">
+      </template>
+
+      <h1 class="text-white">Chat</h1>
+    </q-parallax>
+  </div>
   <q-page class="flex column q-pt-md" v-if="!isAuthenticated">
     <q-tabs
       v-model="tab"
@@ -27,7 +36,7 @@
       class="bg-primary text-white shadow-2"
       :breakpoint="0"
     >
-      <q-tab name="logout" icon="logout" label="logout" />
+      <q-tab name="logout" :label="name? `Hi, ${name}! What do you whant to do?`: null" />
       
     </q-tabs>
     <q-tab-panels v-model="tab2" animated class="flex justify-center">

@@ -10,7 +10,8 @@
         :key="user.authUserId"
         clickable
         v-ripple       
-        :to="{ path: '/chat/'+user.authUserId , params: { id: user.authUserId } }"
+        @click="createAndGoToChat(user.authUserId)"
+        
       >
         <q-item-section avatar>
           <q-avatar color="primary" text-color="white">
@@ -50,11 +51,20 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useStore, ["users"]),
-    ...mapActions(useStore, ["getUsers"]),
+  },
+
+  methods: {    
+    ...mapActions(useStore, ["getUsers", "createChat"]),
+
+    async createAndGoToChat(authUserId){
+      const chatId = await this.createChat(authUserId);
+      
+      this.$router.push({ path: '/chat/'+ chatId , params: { id: chatId }})
+    }
   },
   mounted() {
     // Call getUsers from the store
-    this.getUsers;
+    this.getUsers();
   },
 });
 </script>

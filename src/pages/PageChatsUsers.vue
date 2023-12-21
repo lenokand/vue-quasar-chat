@@ -14,6 +14,7 @@
       >
         <q-item-section avatar>
           <q-avatar color="primary" text-color="white">
+          {{ console.log(chat) }}
             {{ String(chat.participants.find(participant => participant.userId !== userId).user.firstName).charAt(0).toUpperCase() }}
       
           </q-avatar>
@@ -50,11 +51,14 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useStore, ["chats", "userId"]),
+  },
+  methods: {
     ...mapActions(useStore, ["getChats"]),
+
   },
   mounted() {
     // Call getUsers from the store
-    this.getChats;
+    this.getChats();
   },
 });
 </script>
