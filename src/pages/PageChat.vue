@@ -2,7 +2,7 @@
   <q-page class="flex column">
     <!-- <q-banner class="bg-grey-5 q-pa-md"> User is offline {{ userId }} </q-banner> -->
     <q-scroll-area style="height: 510px;" class="dialog">
-      <div  class="q-pa-md column col justify-end  no-wrap" style=" overflow-y: auto;">
+      <div  class="q-pa-md column reverse col justify-end  no-wrap" style=" overflow-y: auto;">
         <!-- <q-scroll-area style="max-height: 400px;" class=" fill"> -->
           <q-chat-message
             v-for="message in messages2"
